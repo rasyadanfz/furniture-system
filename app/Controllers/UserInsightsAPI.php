@@ -82,4 +82,8 @@ class UserInsightsAPI extends ResourceController
         }
         return $result;
     }
+
+    private function getMaterialReviewRecap(){
+        
+    }
 }
