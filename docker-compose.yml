@@ -1,0 +1,45 @@
+version: "3.8"
+services:
+    # Application
+    app:
+        build:
+            context: ./docker/app
+            dockerfile: app.dockerfile
+        working_dir: /var/www
+        env_file: .env
+        volumes:
+            - ./:/var/www
+        networks:
+            - furniture
+        commands: bash -c "php spark db:seed DBSeeder"
+
+    # Web Server
+    web:
+        build:
+            context: ./docker/web
+            dockerfile: web.dockerfile
+        working_dir: /var/www
+        restart: always
+        volumes:
+            - ./:/var/www
+        ports:
+            - "6161:80"
+        networks:
+            - furniture
+
+    # Database
+    database:
+        image: mysql:latest
+        volumes:
+            - ./docker/volumes/mysql:/var/lib/mysql
+        environment:
+            MYSQL_DATABASE: $${database.default.database}
+            MYSQL_ROOT_PASSWORD: $${database.default.password}
+        ports:
+            - "3310:3306"
+        networks:
+            - furniture
+
+networks:
+    furniture:
+        name: "furniture-network"
