@@ -18,6 +18,11 @@ $routes->get('/auth/logout', 'AuthController::processLogout');
 $routes->get('/pesanan', 'PesananController::index', ['filter' => 'auth']);
 $routes->post('/pesanan/create', 'PesananController::create', ['filter' => 'auth']);
 
+// Review Routes
+$routes->post('/reviews/create', 'ReviewController::create', ['filter' => 'auth']);
+$routes->post('/reviews/update', 'ReviewController::update', ['filter' => 'auth']);
+$routes->get('/reviews/(:num)', 'ReviewController::getReviewByPesananId/$1');
+
 // API Routes
 $routes->get('/api/user-insights', 'UserInsightsAPI::index');
 

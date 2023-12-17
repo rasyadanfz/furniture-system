@@ -11,6 +11,7 @@ class ReviewMigration extends Migration
         $this->db->query('SET foreign_key_checks = 0');
         $this->forge->addField([
             'id' => ['type' => 'INT', 'unsigned' => true, 'auto_increment' => true],
+            'pesanan_id' => [ 'type' => 'INT', 'constraint' => 11, 'unsigned' => true],
             'furniture_id' => [
                 'type' => 'INT',
                 'unsigned' => true,
@@ -33,6 +34,7 @@ class ReviewMigration extends Migration
         ]);
 
         $this->forge->addForeignKey('furniture_id', 'furnitures', 'id');
+        $this->forge->addForeignKey('pesanan_id', 'pesanan', 'id');
         $this->forge->addKey('id', true);
         $this->forge->createTable('reviews');
         $this->db->query('SET foreign_key_checks = 1');

@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div class="w-3/12 m-4">
+    <div class="border border-black rounded-lg p-4 absolute top-[45%] left-1/2 translate-x-[-50%] translate-y-[-50%] w-[500px]">
         <h1 class="text-3xl font-bold mb-4">Register</h1>
         <form action="/auth/register" method="POST">
             <div class="flex flex-col">

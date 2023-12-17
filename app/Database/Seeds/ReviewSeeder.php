@@ -25,6 +25,7 @@ class ReviewSeeder extends Seeder
             // See if customer give reviews or not
             if (mt_rand(1,5) >= 3){
                 $temp = [
+                    'pesanan_id' => $value->id,
                     'furniture_id' => $value->furniture_id,
                     'rating' => number_format(\App\Database\Seeds\ReviewSeeder::generateRandomNumber(1, $max_rating), 2),
                     'durability_score' => number_format(\App\Database\Seeds\ReviewSeeder::generateRandomNumber(1, $max_rating), 2),

@@ -12,7 +12,7 @@ class FurnitureModel extends Model
     protected $returnType       = 'object';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['stok'];
+    protected $allowedFields    = ['stok', 'rating'];
 
 
     // Validation

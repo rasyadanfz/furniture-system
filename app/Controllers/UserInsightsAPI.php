@@ -12,15 +12,28 @@ class UserInsightsAPI extends ResourceController
 {
     public function index()
     {
+        // API Authentication
+        $isAuthenticated = $this->authenticateAPIAccess($this->request);
+        
+        if (!$isAuthenticated) {
+            return $this->respond(['message' => 'Unauthorized access', 'data' => null], 401, 'Unauthorized access');
+        }
         // Get 3 most popular furniture items based on the number of orders
-        $data['most_popular_furnitures'] = \App\Controllers\UserInsightsAPI::getPopularFurnitures();
+        $data['most_popular_furnitures'] = $this->getPopularFurnitures();
 
         // Get trending materials based on orders 2 30-days period (-60 to -30 and -30 to current day)
-        $data['materials_demand_increase_percentage'] = \App\Controllers\UserInsightsAPI::getTrendingMaterial();
+        $data['materials_demand_increase_percentage'] = $this->getTrendingMaterial();
 
-        // Get users most durable furniture (based on reviews)
-        $data['most_durable_material'] = \App\Controllers\UserInsightsAPI::getMostDurableFurnitures();
+        // Get material recap
+        $material_recap = $this->getListMaterialScore();
 
+        // Get most durable material
+        $data['most_durable_material_list'] = $material_recap['durabilityList'];
+
+        // Get most best texture material
+        $data['best_texture_material_list'] = $material_recap['textureList'];
+        // Get most maintainable material
+        $data['best_maintanability_material_list'] = $material_recap['maintainabilityList'];
         // Respond with data
         $data['message'] = "success";
 
@@ -65,25 +78,63 @@ class UserInsightsAPI extends ResourceController
         return $popular_furnitures;
     }
 
-    private function getMostDurableFurnitures(){
-        $furnitures_model = model(FurnitureModel::class);
-        $reviews_model = model(ReviewModel::class);
-
-        $reviews_recap = $reviews_model->getDurableRecap();
-        $result = array();
-        foreach($reviews_recap as $recap_data){
-            $furniture_data = $furnitures_model->getFurnitureById($recap_data->furniture_id);
-            $data = [
-                'furniture_name' => $furniture_data[0]->nama,
-                'furniture_material' => $furniture_data[0]->jenisMaterial,
-                'durability_score' => $recap_data->durability_score_avg
-            ];
-            array_push($result, $data);
-        }
-        return $result;
-    }
-
     private function getMaterialReviewRecap(){
-        
+        $review_model = model(ReviewModel::class);
+        $furniture_model = model(FurnitureModel::class);
+        // Group by furniture_id
+        $review_data = $review_model->getMaterialData();
+        foreach($review_data as $data){
+            $furniture_data = $furniture_model->getFurnitureById($data->furniture_id);
+            $data->material_name = $furniture_data[0]->jenisMaterial;
+            $data->material_brand = $furniture_data[0]->merekMaterial;
+        }
+        return $review_data;
     }
+
+    private function getListMaterialScore(){
+        $material_recap = $this->getMaterialReviewRecap();
+        $result_durability = array();
+        $result_texture = array();
+        $result_maintainability = array();
+        foreach($material_recap as $recap_data){
+            $data1 = [
+                'material_name' => $recap_data->material_name,
+                'material_brand' => $recap_data->material_brand,
+                'durability_score' => number_format($recap_data->avg_durability_score, 2)
+            ];
+            $data2 = [
+                'material_name' => $recap_data->material_name,
+                'material_brand' => $recap_data->material_brand,
+                'texture_score' => number_format($recap_data->avg_durability_score, 2)
+            ];
+            $data3 = [
+                'material_name' => $recap_data->material_name,
+                'material_brand' => $recap_data->material_brand,
+                'maintainability_score' => number_format($recap_data->avg_durability_score, 2)
+            ];
+            array_push($result_durability, $data1);
+            array_push($result_texture, $data2);
+            array_push($result_maintainability, $data3);
+        }
+        rsort($result_durability);
+        rsort($result_texture);
+        rsort($result_maintainability);
+        $result_array = [
+            'durabilityList' => $result_durability,
+            'textureList' => $result_texture,
+            'maintainabilityList' => $result_maintainability
+        ];
+        return $result_array;
+    }
+
+    public function authenticateAPIAccess($request){
+        $api_username = $request->getGet('username');
+        $password = $request->getGet('password');
+        if($api_username == env('API_USERNAME') && $password == env('API_PASSWORD')){
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
 }

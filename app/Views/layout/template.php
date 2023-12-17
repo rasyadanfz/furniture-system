@@ -7,13 +7,12 @@
     <link rel="stylesheet" href="/css/style.css">
   </head>
 <body>
-<nav class="flex justify-between items-center py-4 px-6 bg-[#c96f02]">
-    <a href="/" class="font-bold text-3xl text-black">Home</a>
-    <div class="flex items-center gap-x-5">
-      <a href="/pesanan" class="text-lg text-black font-semibold">Orders</a>
-      <a href="/reviews" class="text-lg text-black font-semibold">Reviews</a>
-      <div class="relative">
-        <div id="userProfile" class="hover:cursor-pointer flex items-center gap-x-2">
+<nav class="flex justify-between items-center py-4 px-6 bg-white drop-shadow-md border-b-0.5 border-black">
+    <a href="/" class="font-bold text-3xl hover:scale-110 transition duration-200 ease-in-out text-[#e89402] font-sans">WoodWonders</a>
+    <div class="flex items-center gap-x-5 ">
+      <a href="/pesanan" class="text-lg mr-4 text-[#e89402] font-semibold hover:scale-110 transition duration-200 ease-in-out">Orders</a>
+      <div class="relative mr-6">
+        <div id="userProfile" class="hover:cursor-pointer flex items-center gap-x-2 hover:scale-110 transition duration-200 ease-in-out">
           <img src="/image/user_icon.png" alt="user" class="w-10 h-10 rounded-full object-cover" class="text-white">
           <div class="text-lg text-black font-semibold"><?= session()->get('username') ?></div>
         </div>
@@ -34,6 +33,8 @@
     userProfile.addEventListener('click', () => {
         logoutButton.classList.toggle('hidden');
     })
+
+
 </script>
 </body>
 </html>

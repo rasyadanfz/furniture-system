@@ -21,11 +21,13 @@ class PesananController extends BaseController
 
         $data['pesanans'] = $pesananModel->where('customer_id', $session->get('user_id'))->orderBy('waktuPesanan', 'DESC')->findAll();
         foreach ($data['pesanans'] as $key => $value) {
-            $isOrderReviewed = $reviewModel->where('id', $value['id'])->first();
+            $isOrderReviewed = $reviewModel->where('pesanan_id', $value['id'])->first();
             if($isOrderReviewed){
                 $data['pesanans'][$key]['isReviewed'] = true;
+                $data['pesanans'][$key]['review_score'] = $isOrderReviewed['rating'];
             } else {
                 $data['pesanans'][$key]['isReviewed'] = false;
+                $data['pesanans'][$key]['review_score'] = null;
             }
             $data['pesanans'][$key]['furniture_name'] = ($furnitureModel->find($value['furniture_id']))->nama;
         }
@@ -39,7 +41,6 @@ class PesananController extends BaseController
         $furniture_id = $this->request->getPost('furniture_id');
         $quantity = $this->request->getPost('qty');
         $total_price = $this->request->getPost('price');
-
         // Data
         $data = [
             'waktuPesanan' => date('Y-m-d H:i:s'),
