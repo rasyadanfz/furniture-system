@@ -29,7 +29,23 @@ class FurnitureController extends BaseController
         $durability_score = $this->request->getGet('durability');
         $texture_score = $this->request->getGet('texture');
         $maintainability_score = $this->request->getGet('maintainability');
+        $data = [
+            'tingkatTekstur' => $durability_score,
+            'tingkatKeperawatan' => $texture_score,
+            'tingkatKetahanan' => $maintainability_score
+        ];
         // Contact material API for recommendation
+        $client = \Config\Services::curlrequest([
+            'base_uri' => 'http://localhost:8080/',
+        ]);
+        $body = json_encode($data);
+        $response = $client->request('POST', '/api/rekomendasi/cari', [
+            'body' => $body,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+        ]);
+        dd($response);
     }
 
     private function updateRating(){

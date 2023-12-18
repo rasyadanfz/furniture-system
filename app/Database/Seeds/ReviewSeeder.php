@@ -16,6 +16,8 @@ class ReviewSeeder extends Seeder
         $db = db_connect();
         $query_pesanan = $db->table('pesanan')->get();
         $daftar_pesanan = $query_pesanan->getResult();
+        $toInsert = [];
+        $toSend = [];
 
         foreach ($daftar_pesanan as $key => $value) {
             $reviewDate = new DateTime($value->waktuPesanan);
@@ -24,19 +26,45 @@ class ReviewSeeder extends Seeder
             $max_rating = 10.0;
             // See if customer give reviews or not
             if (mt_rand(1,5) >= 3){
+                $furniturData = $db->table('furnitures')->where('id', $value->furniture_id)->get()->getResult();
+                $jenis_kayu = $furniturData[0]->jenisMaterial;
+                $merek_kayu = $furniturData[0]->merekMaterial;
+                $review = number_format(\App\Database\Seeds\ReviewSeeder::generateRandomNumber(1, $max_rating), 2);
+                $tekstur = number_format(\App\Database\Seeds\ReviewSeeder::generateRandomNumber(1, $max_rating), 2);
+                $ketahanan = number_format(\App\Database\Seeds\ReviewSeeder::generateRandomNumber(1, $max_rating), 2);
+                $keperawatan = number_format(\App\Database\Seeds\ReviewSeeder::generateRandomNumber(1, $max_rating), 2);
                 $temp = [
                     'pesanan_id' => $value->id,
                     'furniture_id' => $value->furniture_id,
-                    'rating' => number_format(\App\Database\Seeds\ReviewSeeder::generateRandomNumber(1, $max_rating), 2),
-                    'durability_score' => number_format(\App\Database\Seeds\ReviewSeeder::generateRandomNumber(1, $max_rating), 2),
-                    'texture_score' => number_format(\App\Database\Seeds\ReviewSeeder::generateRandomNumber(1, $max_rating), 2),
-                    'maintainability_score' => number_format(\App\Database\Seeds\ReviewSeeder::generateRandomNumber(1, $max_rating), 2),
+                    'rating' => $review,
+                    'durability_score' => $ketahanan,
+                    'texture_score' => $tekstur,
+                    'maintainability_score' => $keperawatan,
                     'date_created' => $stringDate,
                 ];
-                $this->db->table('reviews')->insert($temp);
+                array_push($toInsert, $temp);
+                $data = [
+                    'jenis_kayu' => $jenis_kayu,
+                    'merek_kayu' => $merek_kayu,
+                    'review' => intval($review),
+                    'tekstur' => intval($tekstur),
+                    'ketahanan' => intval($ketahanan),
+                    'keperawatan' => intval($keperawatan)
+                ];
+                array_push($toSend, $data);
             }
         }
-
+        $this->db->table('reviews')->insertBatch($toInsert);
+        $client = \Config\Services::curlrequest([
+            'base_uri' => 'http://localhost:8080/',
+        ]);
+        $body = json_encode($toSend);
+        $response = $client->request('POST', 'PenilaianPelanggan/save', [
+            'body' => $body,
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ],
+        ]);
     }
 
     private function generateRandomNumber($min, $max){

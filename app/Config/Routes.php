@@ -28,4 +28,5 @@ $routes->get('/api/user-insights', 'UserInsightsAPI::index');
 
 // Frontend Routes
 $routes->get('/furniture/(:num)', 'FurnitureController::detail/$1');
+$routes->get('/furniture/search', 'FurnitureController::search', ['filter' => 'auth']);
 $routes->get('/', 'FurnitureController::index', ['filter' => 'auth']);
