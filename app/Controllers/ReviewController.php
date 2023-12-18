@@ -65,7 +65,7 @@ class ReviewController extends BaseController
 
     public function saveToMaterialAPI($data){
         $client = \Config\Services::curlrequest([
-            'base_uri' => 'http://localhost:8080/',
+            'base_uri' => env('API_URL'),
         ]);
         $body = $data;
         $response = $client->request('POST', '/PenilaianPelanggan/save', [
