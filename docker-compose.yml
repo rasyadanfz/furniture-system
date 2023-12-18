@@ -2,22 +2,23 @@ version: "3.8"
 services:
     # Application
     app:
+        container_name: furniture_app
         build:
-            context: ./docker/app
-            dockerfile: app.dockerfile
+            context: ./docker/fpm
+            dockerfile: Dockerfile
         working_dir: /var/www
         env_file: .env
         volumes:
             - ./:/var/www
         networks:
             - furniture
-        commands: bash -c "php spark db:seed DBSeeder"
 
     # Web Server
     web:
+        container_name: nginx
         build:
-            context: ./docker/web
-            dockerfile: web.dockerfile
+            context: ./docker/nginx
+            dockerfile: Dockerfile
         working_dir: /var/www
         restart: always
         volumes:
@@ -29,14 +30,15 @@ services:
 
     # Database
     database:
+        container_name: app_db
         image: mysql:latest
         volumes:
             - ./docker/volumes/mysql:/var/lib/mysql
         environment:
-            MYSQL_DATABASE: $${database.default.database}
-            MYSQL_ROOT_PASSWORD: $${database.default.password}
+            MYSQL_DATABASE: furniture_db
+            MYSQL_ROOT_PASSWORD: root
         ports:
-            - "3310:3306"
+            - "3312:3306"
         networks:
             - furniture
 
