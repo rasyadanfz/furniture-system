@@ -33,7 +33,16 @@ class ReviewController extends BaseController
         $pesananModel = model(PesananModel::class);
         $furniture_id = $pesananModel->find($pesanan_id);
         $reviewModel->createReview($pesanan_id, $furniture_id["furniture_id"], $rating, $durability, $texture, $maintainability);
-
+        $furnitureData = model(FurnitureModel::class)->getFurnitureById($furniture_id["furniture_id"]);
+        $dataToSave = [
+            'jenis_kayu' => $furnitureData[0]->jenisMaterial,
+            'merek_kayu' => $furnitureData[0]->merekMaterial,
+            'review' => $rating,
+            'tesktur' => $texture,
+            'ketahanan' => $durability,
+            'keperawatan' => $maintainability
+        ];
+        $this->saveToMaterialAPI(json_encode($dataToSave));
         return redirect()->to('/pesanan');
     }
 
@@ -51,7 +60,14 @@ class ReviewController extends BaseController
             'texture_score' => $texture,
             'maintainability_score' => $maintainability
         ]);
-
         return redirect()->to('/pesanan');
+    }
+
+    public function saveToMaterialAPI($data){
+        $client = \Config\Services::curlrequest([
+            'base_uri' => 'http://localhost:8080/',
+        ]);
+        $body = $data;
+        $response = $client->setBody($body)->request('POST', '/PenilaianPelanggan/save');
     }
 }
