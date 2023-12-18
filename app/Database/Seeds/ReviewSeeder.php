@@ -25,7 +25,7 @@ class ReviewSeeder extends Seeder
             $stringDate = $reviewDate->format('Y-m-d H:i:s');
             $max_rating = 10.0;
             // See if customer give reviews or not
-            if (mt_rand(1,5) >= 3){
+            if (mt_rand(1,5) >= 4){
                 $furniturData = $db->table('furnitures')->where('id', $value->furniture_id)->get()->getResult();
                 $jenis_kayu = $furniturData[0]->jenisMaterial;
                 $merek_kayu = $furniturData[0]->merekMaterial;

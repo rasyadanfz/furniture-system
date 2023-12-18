@@ -105,20 +105,26 @@ class UserInsightsAPI extends ResourceController
             $data2 = [
                 'material_name' => $recap_data->material_name,
                 'material_brand' => $recap_data->material_brand,
-                'texture_score' => number_format($recap_data->avg_durability_score, 2)
+                'texture_score' => number_format($recap_data->avg_texture_score, 2)
             ];
             $data3 = [
                 'material_name' => $recap_data->material_name,
                 'material_brand' => $recap_data->material_brand,
-                'maintainability_score' => number_format($recap_data->avg_durability_score, 2)
+                'maintainability_score' => number_format($recap_data->avg_maintainability_score, 2)
             ];
             array_push($result_durability, $data1);
             array_push($result_texture, $data2);
             array_push($result_maintainability, $data3);
         }
-        rsort($result_durability);
-        rsort($result_texture);
-        rsort($result_maintainability);
+        usort($result_durability, function($a, $b){
+            return $a['durability_score'] < $b['durability_score'];
+        });
+        usort($result_texture, function($a, $b){
+            return $a['texture_score'] < $b['texture_score'];
+        });
+        usort($result_maintainability, function($a, $b){
+            return $a['maintainability_score'] < $b['maintainability_score'];
+        });
         $result_array = [
             'durabilityList' => $result_durability,
             'textureList' => $result_texture,

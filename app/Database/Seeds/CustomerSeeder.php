@@ -10,7 +10,7 @@ class CustomerSeeder extends Seeder
     {
         $query = "ALTER TABLE customers AUTO_INCREMENT = 1";
         $this->db->query($query);
-        for ($i = 1; $i <= 250; $i++) {
+        for ($i = 1; $i <= 100; $i++) {
             $this->db->table('customers')->insert([
                 'nama' => 'Customer ' . $i,
                 'username' => 'customer' . $i,

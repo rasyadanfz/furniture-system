@@ -68,7 +68,7 @@ class ReviewController extends BaseController
             'base_uri' => 'http://localhost:8080/',
         ]);
         $body = $data;
-        $response = $client->request('POST', 'PenilaianPelanggan/save', [
+        $response = $client->request('POST', '/PenilaianPelanggan/save', [
             'body' => $body,
             'headers' => [
                 'Content-Type' => 'application/json'
