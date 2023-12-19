@@ -41,9 +41,12 @@ class ReviewController extends BaseController
             'ketahanan' => intval($durability),
             'keperawatan' => intval($maintainability)
         ];
-        $this->saveToMaterialAPI(json_encode($dataToSave));
-        $reviewModel->createReview($pesanan_id, $furniture_id["furniture_id"], $rating, $durability, $texture, $maintainability);
-        return redirect()->to('/pesanan');
+        if(!$this->saveToMaterialAPI($dataToSave)){
+            return redirect()->to('/pesanan');
+        } else {
+            $reviewModel->createReview($pesanan_id, $furniture_id["furniture_id"], $rating, $durability, $texture, $maintainability);
+            return redirect()->to('/pesanan');
+        }
     }
 
     public function update(){
@@ -67,12 +70,21 @@ class ReviewController extends BaseController
         $client = \Config\Services::curlrequest([
             'base_uri' => env('API_URL'),
         ]);
-        $body = $data;
+        $toSend = [
+            $data, 'username' => 'furniture-system-access-user', 'password' => 'furniture-password-J2hgPoj&7xW2Tyu'
+        ];
+        $body = json_encode($toSend);
         $response = $client->request('POST', '/PenilaianPelanggan/save', [
             'body' => $body,
             'headers' => [
                 'Content-Type' => 'application/json'
             ],
         ]);
+        $response = json_decode($response->getBody());
+        if ($response->status == "failed"){
+            return false;
+        } else {
+            return true;
+        }
     }
 }
