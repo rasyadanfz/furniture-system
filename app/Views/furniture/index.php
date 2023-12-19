@@ -70,6 +70,9 @@
                     
                 </a>
             <?php endforeach ?>
+            <?php if (count($furnitures) == 0): ?>
+                <div class="text-[20px] font-medium">Tidak ada furnitur yang cocok</div>
+            <?php endif ?>
         </div>
 
     <script>

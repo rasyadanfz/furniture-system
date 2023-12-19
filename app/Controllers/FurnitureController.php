@@ -45,7 +45,57 @@ class FurnitureController extends BaseController
                 'Content-Type' => 'application/json'
             ],
         ]);
-        dd($response);
+        $topScores = [];
+        $data = json_decode($response->getBody())->data;
+        foreach($data as $key => $rekomendasiRow){
+            $calculateDiff = abs($rekomendasiRow->Tingkat_Tekstur - $texture_score) + abs($rekomendasiRow->Tingkat_Keperawatan - $maintainability_score) + abs($rekomendasiRow->Tingkat_Ketahanan - $durability_score);
+        
+            // If there are less than 3 top scores, or the current score is greater than the smallest score in the top scores
+            if (count($topScores) < 3 || $calculateDiff < min(array_column($topScores, 'score'))){
+                // If there are already 3 top scores, remove the smallest score
+                if (count($topScores) == 3){
+                    $minIndex = array_search(min(array_column($topScores, 'score')), array_column($topScores, 'score'));
+                    unset($topScores[$minIndex]);
+                    $topScores = array_values($topScores);
+                }
+        
+                // Add the current score, ID, jenis_kayu, and merek_kayu to the top scores array
+                $topScores[] = [
+                    'score' => $calculateDiff,
+                    'id' => $rekomendasiRow->id,
+                    'jenis_kayu' => $rekomendasiRow->Jenis_Kayu,
+                    'merek_kayu' => $rekomendasiRow->Merek_Kayu
+                ];
+            }
+        }
+
+        $furnitureModel = model(FurnitureModel::class);
+        $result = [];
+        foreach($topScores as $key => $material){
+            $jenis = $material["jenis_kayu"];
+            $merek = $material["merek_kayu"];
+
+            $jenisFurnitureList = $furnitureModel->getFurnitureByJenis($jenis);
+            $merekFurnitureList = $furnitureModel->getFurnitureByMerek($merek);
+
+            if(count($jenisFurnitureList) == 0 || count($merekFurnitureList) == 0){
+                continue;
+            } 
+
+            $furnitureByJenis = json_decode(json_encode($furnitureModel->getFurnitureByJenis($jenis)[0]), true);
+            $furnitureByMerek = json_decode(json_encode($furnitureModel->getFurnitureByMerek($merek)[0]), true);
+
+            // Find the one that are both in those arrays
+            $isCommonFurniture = $furnitureByJenis["id"] == $furnitureByMerek["id"];
+            // If there are none, select one randomly from jenis
+            if(!$isCommonFurniture){
+                array_push($result, json_decode(json_encode($furnitureByJenis)));
+            } else {
+                $commonFurniture = $furnitureModel->find($furnitureByJenis["id"]);
+                array_push($result, (json_decode(json_encode($commonFurniture))));
+            }
+        }
+        return view('/furniture/index', ['furnitures' => $result]);
     }
 
     private function updateRating(){

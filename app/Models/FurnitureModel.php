@@ -50,4 +50,16 @@ class FurnitureModel extends Model
         $builder = $db->table('furnitures')->select('*')->where('id', $id);
         return $builder->get()->getResult();
     }
+
+    public function getFurnitureByJenis($jenis){
+        $db = db_connect();
+        $builder = $db->table('furnitures')->select('*')->where('jenisMaterial', $jenis);
+        return $builder->get()->getResult();
+    }
+
+    public function getFurnitureByMerek($merek){
+        $db = db_connect();
+        $builder = $db->table('furnitures')->select('*')->where('merekMaterial', $merek);
+        return $builder->get()->getResult();
+    }
 }
